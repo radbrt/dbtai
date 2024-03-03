@@ -1,6 +1,6 @@
 # dbtAI
 
-An AI CLI utility for common tasks with dbt.
+An AI CLI utility for common tasks with dbt. Commands are intended to run inside a dbt project, and parses the dbt manifest to provide relevant context for the LLM.
 
 ## Get started
 
