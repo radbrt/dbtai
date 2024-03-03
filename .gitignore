@@ -1,0 +1,6 @@
+_jot_*
+__pycache__
+.env
+.venv/
+.vscode/
+.idea/
