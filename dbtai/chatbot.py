@@ -40,11 +40,19 @@ class ModelChatBot:
         Returns:
             openai.ChatCompletion: The response from the chat API
         """
-    
-        return self.client.chat.completions.create(
-            model="gpt-3.5-turbo", 
-            messages=messages
-        )
+        if self.config["backend"] == "OpenAI":
+            return self.client.chat.completions.create(
+                model=self.config["openai_model_name"], 
+                messages=messages
+            )
+        else:
+            return self.client.chat.completions.create(
+                model=self.config["azure_openai_model"], 
+                messages=messages,
+                deployment=self.config["azure_openai_deployment"],
+                endpoint=self.config["azure_endpoint"]
+            )
+
 
     def run(self):
         print(f"""
@@ -58,7 +66,7 @@ Type 'quit' or hit Ctrl-C to exit)
                 print("Goodbye!")
                 break
 
-            if user_input == "\save":
+            if user_input == r"\save":
                 with open('chat_history.txt', 'a') as f:
                     f.write(f"Chat history for the dbt model: {self.model_name}, on {datetime.datetime.now().isoformat()}\n\n")
                     for item in self.chat_history:

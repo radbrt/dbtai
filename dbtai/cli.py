@@ -132,7 +132,7 @@ def constraints():
 @dbtai.command(help="Generate model code")
 @click.argument("model_name", required=True)
 @click.argument("description", required=True)
-@click.option("--input", "-i", required=False, help="Input model", multiple=True)
+@click.option("--input", "-i", required=False, help="Name of Input model. Can be passed multiple times to reference several models", multiple=True)
 def gen(model_name, description, input):
     manifest = Manifest()
     model = manifest.generate_model(model_name, description, input)
