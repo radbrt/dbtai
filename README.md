@@ -49,29 +49,36 @@ Generate documentation for a given model name, optionally write it to a `<model_
 `dbtai`can create unit tests for any model with the command 
 
 ```bash
-dbt unit <model_name> "<What to test>" [-w]
+dbtai unit <model_name> "<What to test>" [-w]
 ```
 
 optionally write the test to the `<model_name>.yml` sidecar file with the `-w` or `--write` flag. When writing to file, `dbtai` assumes the file already exists (because you did write docs first, of course).
 
 
+### Generate new models
+
+Create a new model from a description and a list of inputs.
+
+```bash
+dbtai gen -i companies_model -i sales_model "Join the tables on company_id and aggregate sales"
+```
+
+`dbtai` collects relevant upstream information and prints the result to the terminal.
+
+
+### Make changes to existing models
+
+Give `dbtai` an existing model, describe the changes you want, and get a suggestion for the model code.
+
+```bash
+dbtai fix companies_model "create rolling median monthly sales for previous 12 months column"
+```
+
+Optionally view the diff between the existing and new suggestion by passing the `--diff` option (seems to be buggy).
+
+
 ## Future work
 
-### Generate code
-
-Generate SQL code from a description. Maybe a command like
-
-```bash
-dbtai gen <model_name> "<Description of what to generate>"
-```
-
-### Fix code
-
-Take the name of an existing model along with a description of what to change.
-
-```bash
-dbtai fix <model_name> "<Description of change>"
-```
 
 ### Advanced fluffing
 
@@ -81,6 +88,15 @@ Take the name of an existing model, improve the SQL style by running sqlfluff (n
 dbtai fluff <model_name>
 ```
 
+### Explain
+
+Simply read a model and it's context to explain what the model actually does, and why.
+
+```bash
+dbtai explain <model_name>
+```
+
+Perhaps also add a parameter to ask questions.
 
 ## That's all, folks!
 
