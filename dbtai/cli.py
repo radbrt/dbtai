@@ -125,9 +125,10 @@ def unit(model, instructions, write):
         click.echo(test)
         click.echo(explanation)
 
-@dbtai.command(help="Write dbt constraints given the uniqueness tests in the model")
+@dbtai.command(help="Not yet implemented. Write dbt constraints given the uniqueness tests in the model")
 def constraints():
     raise NotImplementedError("Not yet implemented")
+
 
 @dbtai.command(help="Generate model code")
 @click.argument("model_name", required=True)
@@ -138,6 +139,7 @@ def gen(model_name, description, input):
     model = manifest.generate_model(model_name, description, input)
     click.echo(model["code"])
     click.echo(f"\n\n{model['explanation']}")
+
 
 @dbtai.command(help="Make a change to a dbt model")
 @click.argument("model_name", required=True)
@@ -177,6 +179,7 @@ def fluff(model, write, rewrite):
         with open(write_path, "w") as f:
             f.write(result['code'])
 
+
 @dbtai.command(help="Explain the dbt code")
 @click.argument("model", required=True)
 def explain(model):
@@ -195,8 +198,6 @@ def chat(model):
         system_prompt=chatbot_prompt
     )
     chatbot.run()
-
-
 
 
 
