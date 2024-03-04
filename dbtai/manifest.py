@@ -148,6 +148,26 @@ class Manifest():
         return '\n\n'.join(all_models)
 
 
+    def get_model_description(self, model_name):
+        """Get the description of a model.
+        
+        Args:
+            model_name (str): The name of the model.
+
+        Returns:
+            str: The description of the model.
+        """
+        model = self.get_model_from_name(model_name)
+
+        top_level_description = model.get('description') or "(no description)"
+        column_descriptions = '\n'.join(
+        [f'* {column}: {content.get("description") or "(no description)"}' 
+        for column, content in model['columns'].items()]
+        ) or '(no columns defined)'
+
+        return f'{top_level_description}\nColumns:\n{column_descriptions}'
+
+
     def create_documentation_instructions(self, model_name):
         """Create a markdown prompt with instructions for documenting the model.
         
@@ -385,3 +405,15 @@ class Manifest():
         )
 
         return response.choices[0].message.content
+    
+    def generate_chatbot_prompt(self, model):
+        model_docs = self.get_model_description(model)
+        upstream_docs = self.compile_upstream_description_markdown(model)
+        model_code = self.get_model_from_name(model)['raw_code']
+        prompt = languages[self.config['language']]['chatbot_prompt'].format(
+            model_name=model,
+            raw_code=model_code,
+            upstream_models = upstream_docs,
+            model_description=model_docs
+        )
+        return prompt

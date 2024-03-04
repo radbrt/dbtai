@@ -47,6 +47,20 @@ The upstream models referenced in the code are:
 
 The documentation of the model itself is:
 {model_description}
+""",
+
+"chatbot_prompt": """
+You are a friendly chatbot, ready to answer questions about the following dbt model, named {model_name}. The code is:
+
+```
+{raw_code}
+```
+
+The upstream models referenced in the code are:
+{upstream_models}
+
+The documentation of the model itself is:
+{model_description}
 """
 },
   "norwegian": {
@@ -82,6 +96,19 @@ Resultatet skal være en JSON med følgende struktur:
 "explain_prompt": """
 Vennligst forklar koden for følgende dbt-modell, med navn {model_name}, på en klar og kortfattet måte. Koden er:
 
+```
+{raw_code}
+```
+
+De oppstrømsmodellene som refereres i koden er: 
+{upstream_models}
+
+Dokumentasjonen av selve modellen er: 
+{model_description}
+""",
+
+"chatbot_prompt": """
+Du er en vennlig chatbot, klar til å svare på spørsmål om følgende dbt-modell, med navn {model_name}. Koden er:
 ```
 {raw_code}
 ```
@@ -136,6 +163,19 @@ Dokumentasjonen av selve modellen er:
 
 模型本身的文档说明是：
 {model_description}
+""",
+
+"chatbot_prompt": """
+你是一个友好的聊天机器人，随时准备回答有关以下名为{model_name}的dbt模型的问题。代码如下：
+```
+{raw_code}
+```
+
+代码中引用的上游模型有：
+{upstream_models}
+
+模型本身的文档说明是：
+{model_description}
 """
   },
   "spanish": {
@@ -179,6 +219,19 @@ Los modelos previos referenciados en el código son:
 {upstream_models}
 
 La documentación del propio modelo es:
+{model_description}
+""",
+
+"chatbot_prompt": """
+Eres un chatbot amigable, listo para responder preguntas sobre el siguiente modelo dbt, llamado {model_name}. El código es:
+```
+{raw_code}
+```
+
+Los modelos previos referenciados en el código son: 
+{upstream_models}
+
+La documentación del propio modelo es: 
 {model_description}
 """
   },
@@ -225,6 +278,19 @@ Les modèles en amont référencés dans le code sont :
 
 La documentation du modèle lui-même est : 
 {model_description}
+""",
+
+"chatbot_prompt": """
+Vous êtes un chatbot amical, prêt à répondre aux questions concernant le modèle dbt suivant, nommé {model_name}. Le code est :
+```
+{raw_code}
+```
+
+Les modèles en amont référencés dans le code sont :
+{upstream_models}
+
+La documentation du modèle lui-même est : 
+{model_description}
 """
   },
   "german": {
@@ -261,6 +327,19 @@ Die Ausgabe sollte ein JSON mit folgender Struktur sein:
 "explain_prompt": """
 Bitte erklären Sie den Code für das folgende dbt-Modell, mit dem Namen {model_name}, auf eine klare und prägnante Weise. Der Code lautet:
 
+```
+{raw_code}
+```
+
+Die im Code referenzierten vorgelagerten Modelle sind: 
+{upstream_models}
+
+Die Dokumentation des Modells selbst ist: 
+{model_description}
+""",
+
+"chatbot_prompt": """
+Du bist ein freundlicher Chatbot, bereit Fragen zum folgenden dbt-Modell, genannt {model_name}, zu beantworten. Der Code lautet:
 ```
 {raw_code}
 ```

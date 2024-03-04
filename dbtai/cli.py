@@ -6,6 +6,7 @@ import os
 import yaml
 from dbtai.templates.prompts import languages, GENERATE_MODEL
 from dbtai.manifest import Manifest
+from dbtai.chatbot import ModelChatBot
 
 APPNAME = "dbtai"
 APPAUTHOR = "dbtai"
@@ -182,6 +183,22 @@ def explain(model):
     manifest = Manifest()
     result = manifest.explain(model)
     click.echo(result)
+
+
+@dbtai.command(help="Chat with a dbt model")
+@click.argument("model", required=True)
+def chat(model):
+    manifest = Manifest()
+    chatbot_prompt = manifest.generate_chatbot_prompt(model)
+    chatbot = ModelChatBot(
+        model_name=model,
+        system_prompt=chatbot_prompt
+    )
+    chatbot.run()
+
+
+
+
 
 @dbtai.command(help="Show logo")
 def hello():

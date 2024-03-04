@@ -95,6 +95,17 @@ Simply read a model and it's context to explain what the model actually does, an
 dbtai explain <model_name>
 ```
 
+### Chat
+You can open an interactive chat with a dbt model:
+
+```bash
+dbtai chat <model_name>
+```
+
+This will open a CLI chat, letting you ask questions and get answers interactively, keeping the chat history.
+
+Save the chat history to file by typing `\save` inside the chat. You can still continue the chat after saving.
+
 
 ## That's all, folks!
 
