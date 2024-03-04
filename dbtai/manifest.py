@@ -1,13 +1,19 @@
 import os
 import json
-from dbtai.templates.prompts import languages, UNITTEST
+from dbtai.templates.prompts import (
+    languages, 
+    UNITTEST, 
+    GENERATE_MODEL, 
+    GENERATE_MODEL_SYSTEM_PROMPT, 
+    FIX_MODEL_PROMPT
+)
 import appdirs
 import yaml
 from openai import OpenAI
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 import io
-
+import difflib
 
 class Manifest():
 
@@ -193,11 +199,58 @@ class Manifest():
 
         return yaml_string
 
-        # if not write:
-        #     print(yaml_string)
-        # else:
-        #     model = get_model_from_name(model, manifest)
-        #     model_sql_path = model['original_file_path']
-        #     yaml_path = model_sql_path.replace('.sql', '.yml')
-        #     with open(yaml_path, 'w') as f:
-        #         f.write(yaml_string)
+
+    def generate_model(self, model_name, description, inputs=[]):
+        """Generate model"""
+
+        if len(inputs) > 0:
+            inputs = [self.compile_upstream_description_markdown(model_name) for model_name in inputs]
+            upstream_docs = '\n\n'.join(inputs)
+        else:
+            upstream_docs = None
+        
+        prompt = GENERATE_MODEL.format(
+            model_name=model_name,
+            description=description,
+            upstream_docs=upstream_docs
+        )
+
+        response = self.chat_completion(
+            messages=[
+                {"role": "system", "content": GENERATE_MODEL_SYSTEM_PROMPT},
+                {"role": "system", "content":prompt}
+            ]
+        )
+
+        response_json = json.loads(response.choices[0].message.model_dump_json())
+        docs_json = json.loads(response_json['content'])
+        return docs_json
+    
+    def fix(self, model_name, description):
+        """Fix model"""
+        upstream_docs = self.compile_upstream_description_markdown(model_name)
+
+
+        model_code = self.get_model_from_name(model_name)['raw_code']
+
+        prompt = FIX_MODEL_PROMPT.format(
+            model_code=model_code,
+            issue = description,
+            tables = upstream_docs
+        )
+
+        response = self.chat_completion(
+            messages=[
+                {"role": "system", "content": GENERATE_MODEL_SYSTEM_PROMPT},
+                {"role": "system", "content":prompt}
+            ]
+        )
+
+        response_json = json.loads(response.choices[0].message.model_dump_json())
+        docs_json = json.loads(response_json['content'])
+
+        new_code = docs_json['code']
+        diff = difflib.unified_diff(model_code, new_code, fromfile='model_code', tofile='new_code')
+        docs_json['diff'] = diff
+
+        return docs_json

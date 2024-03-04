@@ -4,7 +4,7 @@ import appdirs
 import json
 import os
 import yaml
-from dbtai.templates.prompts import languages
+from dbtai.templates.prompts import languages, GENERATE_MODEL
 from dbtai.manifest import Manifest
 
 APPNAME = "dbtai"
@@ -120,6 +120,39 @@ def unit(model, instructions, write):
 @dbtai.command(help="Write dbt constraints given the uniqueness tests in the model")
 def constraints():
     raise NotImplementedError("Not yet implemented")
+
+@dbtai.command(help="Generate model code")
+@click.argument("model_name", required=True)
+@click.argument("description", required=True)
+@click.option("--input", "-i", required=False, help="Input model", multiple=True)
+def gen(model_name, description, input):
+    manifest = Manifest()
+    model = manifest.generate_model(model_name, description, input)
+    click.echo(model["code"])
+    click.echo(f"\n\n{model['explanation']}")
+
+@dbtai.command(help="Make a change to a dbt model")
+@click.argument("model_name", required=True)
+@click.argument("description", required=True)
+@click.option("--diff", "-d", is_flag=True, help="Show the diff", default=False)
+def fix(model_name, description, diff):
+    manifest = Manifest()
+    click.echo(model_name)
+    click.echo(description)
+
+    model = manifest.fix(model_name, description)
+    # Print the diff'
+    if diff:
+
+        for line in model['diff']:
+            print(line)
+            if line.startswith('+'):
+                click.echo(click.style(line, fg='green'))
+            elif line.startswith('-'):
+                click.echo(click.style(line, fg='red'))
+    else:
+        click.echo(model["code"])
+        click.echo(f"\n\n{model['explanation']}")
 
 
 @dbtai.command(help="Show logo")

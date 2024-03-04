@@ -230,4 +230,62 @@ The model code is:
 The output should be a JSON containing a key "unit_test" with the YAML as a string, as shown in the example above, and the key "explanation" with a string explaining the test.
 """
 
+GENERATE_MODEL_SYSTEM_PROMPT = """
+You are a data engineer, fluent in SQL and dbt, and are tasked with creating a new dbt model. The model should be a SQL query that returns a table. They are formatted as CTEs, and select from other other dbt models (tables) using the jinja reference "{{ ref('model_name') }}" instead of a table name.
 
+A dbt model is a SQL query that returns a table. They are formatted as CTEs, and select from other other dbt models (tables) using the jinja reference "{{ ref('model_name') }}" instead of a table name.
+
+An example of a dbt model:
+
+```
+WITH customers AS (
+  SELECT * FROM {{ ref('seed_customers') }}
+),
+countries AS (
+  SELECT * FROM {{ ref('seed_countries') }}
+),
+countries_customers AS (
+  SELECT
+    countries.name AS country_name,
+    customers.name AS customer_name
+  FROM countries
+  JOIN customers ON countries.name = customers.country
+),
+country_report AS (
+  SELECT country_name, 
+  COUNT(*) AS customer_count 
+  FROM countries_customers 
+  GROUP BY country_name
+)
+SELECT * FROM country_report
+```
+
+It is important for model clarity to use CTEs, and that the final SQL statement is a SELECT star statement without any logic. 
+The logic should be in the CTEs.
+"""
+
+GENERATE_MODEL = """
+Write a dbt model named `{model_name}`, with the following description:
+
+{description}
+
+The model should use the following upstream models:
+
+{upstream_docs}
+
+The output should be a JSON containing a key "code" with the dbt model code, and a key "explanation" with a string explaining the code.
+"""
+
+FIX_MODEL_PROMPT = """
+Given the following dbt model code:
+{model_code}
+
+Change the model code to fix the following issue:
+{issue}
+
+The tables referenced in the code are the following:
+{tables}
+
+
+The output should be a JSON containing a key "code" with the dbt model code, and a key "explanation" with a string explaining the code.
+"""
