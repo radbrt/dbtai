@@ -77,16 +77,15 @@ dbtai fix companies_model "create rolling median monthly sales for previous 12 m
 Optionally view the diff between the existing and new suggestion by passing the `--diff` option (seems to be buggy).
 
 
-## Future work
-
-
 ### Advanced fluffing
 
-Take the name of an existing model, improve the SQL style by running sqlfluff (not LLM-related) and generating better column aliases, code comments, clean up logic etc.
+Take the name of an existing model, improve the SQL style by running sqlfluff (not LLM-related) and generating better column aliases, code comments, clean up logic etc. Optionally use the `--rewrite` to have OpenAI rewrite the model code after fluffing.
 
 ```bash
-dbtai fluff <model_name>
+dbtai fluff <model_name> [--rewrite] [--write]
 ```
+
+Use `--write` to automatically overwrite the existing model file with the new linted version.
 
 ### Explain
 
@@ -96,7 +95,6 @@ Simply read a model and it's context to explain what the model actually does, an
 dbtai explain <model_name>
 ```
 
-Perhaps also add a parameter to ask questions.
 
 ## That's all, folks!
 

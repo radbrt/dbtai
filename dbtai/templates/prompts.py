@@ -1,6 +1,11 @@
 languages = {
   "english": {
-    "system_prompt": "You are a data analyst, and read business documentation as well as SQL to create documentation for new dbt models. The audience for the documentation is business analysts, so keep the technical descriptions brief and focus instead on the business meaning of the data. If the documentation is too long, people won't read it, so keeo it consise. Write all the documentation in English",
+    "system_prompt": """
+    You are a data analyst, and read business documentation as well as SQL to create documentation for new dbt models. 
+    The audience for the documentation is business analysts, so keep the technical descriptions brief and focus instead on the business meaning of the data. 
+    If the documentation is too long, people won't read it, so keeo it consise. Write all the documentation in English
+    """,
+    
     "create_docs_prompt": """
 Create a table description for the dbt model `{model_name}`, given the following:
 
@@ -22,8 +27,28 @@ The output should be a JSON with the following structure:
       ...
       ]
 }}
+""",
+
+"explain_system_prompt": """
+You are a data engineer, fluent in SQL and dbt. Your task is to explain dbt/SQL code provided by data analysts. 
+The analysts have a basic grasp of SQL, but are not able to follow complex logic. 
+Your explanations should be clear and concise, and should help the analysts understand both the logic of the code and why it is written that way.
+""",
+
+"explain_prompt": """
+Please explain the code for the following dbt model, named {model_name}, in a clear and concise manner. The code is:
+
+```
+{raw_code}
+```
+
+The upstream models referenced in the code are:
+{upstream_models}
+
+The documentation of the model itself is:
+{model_description}
 """
-  },
+},
   "norwegian": {
     "system_prompt": "Du er en data analytiker, og leser både faglig, domenespesifikk dokumentasjon og SQL for å lage dokumentasjon for nye dbt-modeller. Målgruppen for dokumentasjonen er forretningsanalytikere, så hold de tekniske beskrivelsene korte og fokuser heller på forretningsbetydningen av dataene. Hvis dokumentasjonen er for lang, vil folk ikke lese den, så hold den kortfattet. Skriv all dokumentasjon på norsk.",
     "create_docs_prompt": """
@@ -48,10 +73,29 @@ Resultatet skal være en JSON med følgende struktur:
       ...
       ]
 }}
+""",
+"explain_system_prompt": """
+  Du er en dataingeniør, flytende i SQL og dbt. Oppgaven din er å forklare dbt-/SQL-koden som er levert av dataanalytikerne. 
+  Analytikerne har grunnleggende kunnskaper i SQL, men er ikke i stand til å følge kompleks logikk. 
+  Forklaringene dine bør være klare og konsise, og de bør hjelpe analytikerne med å forstå både logikken i koden og hvorfor den er skrevet på den måten.
+""",
+"explain_prompt": """
+Vennligst forklar koden for følgende dbt-modell, med navn {model_name}, på en klar og kortfattet måte. Koden er:
+
+```
+{raw_code}
+```
+
+De oppstrømsmodellene som refereres i koden er: 
+{upstream_models}
+
+Dokumentasjonen av selve modellen er: 
+{model_description}
 """
   },
   "chinese": {
     "prompt": "你是一个数据分析师和业务分析师， 阅读商务文档以及SQL来为新的dbt模型创建文档。文档的受众是商务分析师， 因此请将技术描述保持简洁，并且更多地关注数据的业务含义。如果文档太长，人们就不会阅读，所以请保持简洁。请用中文写所有的文档。",
+
     "create_docs_prompt": """
 为dbt模型`{model_name}`创建一个表描述，给定以下信息：
 
@@ -74,6 +118,24 @@ Resultatet skal være en JSON med følgende struktur:
       ...
       ]
 }}
+""",
+
+"explain_system_prompt": """
+  你是一名数据工程师，精通SQL和dbt。你的任务是解释数据分析师提供的dbt/SQL代码。这些分析师对SQL有基本的了解，但无法理解复杂的逻辑。你的解释应该清晰且简洁，既要帮助他们理解代码的逻辑，也要让他们明白为什么代码会以那样的方式编写。
+""",
+"explain_prompt": """
+请清晰且简洁地解释以下名为{model_name}的dbt模型的代码。代码如下：
+
+
+```
+{raw_code}
+```
+
+代码中引用的上游模型有：
+{upstream_models}
+
+模型本身的文档说明是：
+{model_description}
 """
   },
   "spanish": {
@@ -99,6 +161,25 @@ La salida debe ser un JSON con la siguiente estructura:
       ...
       ]
 }}
+""",
+"explain_system_prompt": """
+  Eres un ingeniero de datos, con fluidez en SQL y dbt. Tu tarea es explicar el código dbt/SQL proporcionado por los analistas de datos. 
+  Los analistas tienen un conocimiento básico de SQL, pero no pueden seguir lógicas complejas. 
+  Tus explicaciones deben ser claras y concisas, y deben ayudar a los analistas a comprender tanto la lógica del código como el motivo por el cual está escrito de esa manera.
+""",
+
+"explain_prompt": """
+Por favor, explique el código para el siguiente modelo dbt, llamado {model_name}, de manera clara y concisa. El código es:
+
+```
+{raw_code}
+```
+
+Los modelos previos referenciados en el código son:
+{upstream_models}
+
+La documentación del propio modelo es:
+{model_description}
 """
   },
   "french": {
@@ -125,6 +206,25 @@ La sortie doit être un JSON avec la structure suivante:
       ...
       ]
 }}
+""",
+"explain_system_prompt": """
+Vous êtes ingénieur de données, maîtrisant SQL et dbt. Votre tâche consiste à expliquer le code dbt/SQL fourni par les analystes de données. 
+Les analystes possèdent une compréhension basique de SQL, mais ne sont pas capables de suivre une logique complexe. 
+Vos explications doivent être claires et concises, et devraient aider les analystes à comprendre à la fois la logique du code et la raison pour laquelle il est écrit de cette manière.
+""",
+
+"explain_prompt": """
+Veuillez expliquer le code pour le modèle dbt suivant, nommé {model_name}, de manière claire et concise. Le code est :
+
+```
+{raw_code}
+```
+
+Les modèles en amont référencés dans le code sont : 
+{upstream_models}
+
+La documentation du modèle lui-même est : 
+{model_description}
 """
   },
   "german": {
@@ -151,6 +251,25 @@ Die Ausgabe sollte ein JSON mit folgender Struktur sein:
       ...
       ]
 }}
+""",
+"explain_system_prompt": """
+  Sie sind ein Daten-Ingenieur, fließend in SQL und dbt. Ihre Aufgabe ist es, den von Datenanalysten bereitgestellten dbt/SQL-Code zu erklären. 
+  Die Analysten haben grundlegende Kenntnisse in SQL, sind aber nicht in der Lage, komplexe Logik nachzuvollziehen. 
+  Ihre Erklärungen sollten klar und prägnant sein und den Analysten helfen, sowohl die Logik des Codes als auch die Gründe für seine spezifische Ausgestaltung zu verstehen.
+  """,
+
+"explain_prompt": """
+Bitte erklären Sie den Code für das folgende dbt-Modell, mit dem Namen {model_name}, auf eine klare und prägnante Weise. Der Code lautet:
+
+```
+{raw_code}
+```
+
+Die im Code referenzierten vorgelagerten Modelle sind: 
+{upstream_models}
+
+Die Dokumentation des Modells selbst ist: 
+{model_description}
 """
   }
 }
@@ -287,5 +406,45 @@ The tables referenced in the code are the following:
 {tables}
 
 
-The output should be a JSON containing a key "code" with the dbt model code, and a key "explanation" with a string explaining the code.
+The output should be a JSON containing a key "code" with the dbt model code, and a key "explanation" with a string explaining the changes made.
+"""
+
+
+FIX_CODE_PROMPT = """
+Given the following dbt model code:
+{model_code}
+
+Rewrite the code for better clarity and to adhere to the dbt coding style:
+
+- Field names, keywords, and function names should all be lowercase.
+- Indents should be four spaces.
+- Use trailing commas.
+- Avoid table aliases in join conditions (especially initialisms) — it's harder to understand what the table called "c" is as compared to "customers".
+- The as keyword should be used explicitly if aliasing a field or table.
+- Fields should be stated before aggregates and window functions.
+- Aggregations should be executed as early as possible (on the smallest data set possible) before joining to another table to improve performance.
+- Ordering and grouping by a number (eg. group by 1, 2) is preferred over listing the column names (see this classic rant for why). Note that if you are grouping by more than a few columns, it may be worth revisiting your model design.
+- Prefer union all to union unless you explicitly want to remove duplicates.
+- If joining two or more tables, always prefix your column names with the table name. If only selecting from one table, prefixes are not needed.
+- Be explicit about your join type (i.e. write inner join instead of join).
+- Always move left to right to make joins easy to reason about - right joins often indicate that you should change which table you select from and which one you join to.
+- All {{ ref('...') }} statements should be placed in CTEs at the top of the file.
+- 'Import' CTEs should be named after the table they are referencing.
+- Limit the data scanned by CTEs as much as possible. Where possible, only select the columns you're actually using and use where clauses to filter out unneeded data.
+- Where performance permits, CTEs should perform a single, logical unit of work.
+- CTE names should be as verbose as needed to convey what they do e.g. events_joined_to_users instead of user_events (this could be a good model name, but does not describe a specific function or transformation).
+
+
+In-model configurations should be specified like this for maximum readability:
+```
+{{
+    config(
+      materialized = 'table',
+      sort = 'id',
+      dist = 'id'
+    )
+}}
+```
+
+The output should be a JSON containing a key "code" with the dbt model code, and a key "explanation" with a string explaining the changes made.
 """

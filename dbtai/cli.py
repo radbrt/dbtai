@@ -20,6 +20,13 @@ def dbtai():
 @click.option('--write', '-w', is_flag=True, help='Write the generated documentation to file', default=False)
 @click.option('--print', '-p', is_flag=True, help='Print the generated documentation', default=False)
 def doc(model, write, print):
+    """Generate documentation for a dbt model.
+    
+    Args:
+        model (str): The name of the dbt model
+        write (bool): Write the generated documentation to file
+        print (bool): Print the generated documentation
+    """
     manifest = Manifest()
     docs_json = manifest.generate_docs(model)
     docs_yaml = manifest.format_docs(docs_json)
@@ -134,16 +141,15 @@ def gen(model_name, description, input):
 @dbtai.command(help="Make a change to a dbt model")
 @click.argument("model_name", required=True)
 @click.argument("description", required=True)
-@click.option("--diff", "-d", is_flag=True, help="Show the diff", default=False)
+@click.option("--diff", "-d", is_flag=True, help="Show the diff between existing and suggested code", default=False)
 def fix(model_name, description, diff):
     manifest = Manifest()
     click.echo(model_name)
     click.echo(description)
 
     model = manifest.fix(model_name, description)
-    # Print the diff'
-    if diff:
 
+    if diff:
         for line in model['diff']:
             print(line)
             if line.startswith('+'):
@@ -154,6 +160,28 @@ def fix(model_name, description, diff):
         click.echo(model["code"])
         click.echo(f"\n\n{model['explanation']}")
 
+
+@dbtai.command(help="Fluff the code")
+@click.argument("model", required=True)
+@click.option("--write", "-w", is_flag=True, help="Write the fluffed code to file", default=False)
+@click.option("--rewrite", is_flag=True, help="Write the fluffed code to file and overwrite the original", default=False)
+def fluff(model, write, rewrite):
+    manifest = Manifest()
+    result = manifest.fluff(model, rewrite=rewrite)
+
+    if not write:
+        click.echo(result['code'])
+    else:
+        write_path = manifest.get_model_location(model)
+        with open(write_path, "w") as f:
+            f.write(result['code'])
+
+@dbtai.command(help="Explain the dbt code")
+@click.argument("model", required=True)
+def explain(model):
+    manifest = Manifest()
+    result = manifest.explain(model)
+    click.echo(result)
 
 @dbtai.command(help="Show logo")
 def hello():

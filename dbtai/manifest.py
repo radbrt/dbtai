@@ -5,7 +5,8 @@ from dbtai.templates.prompts import (
     UNITTEST, 
     GENERATE_MODEL, 
     GENERATE_MODEL_SYSTEM_PROMPT, 
-    FIX_MODEL_PROMPT
+    FIX_MODEL_PROMPT,
+    FIX_CODE_PROMPT
 )
 import appdirs
 import yaml
@@ -14,6 +15,7 @@ from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 import io
 import difflib
+import sqlfluff
 
 class Manifest():
 
@@ -21,6 +23,11 @@ class Manifest():
         self,
         manifest_path = 'target/manifest.json'
     ):
+        """Initialize the manifest object by loading the manifest, the user config and the OpenAI client.
+        
+        Args:
+            manifest_path (str, optional): The path to the manifest. Defaults to 'target/manifest.json'.
+        """
         self.manifest_path = manifest_path
 
         if not os.path.exists('dbt_project.yml'):
@@ -36,6 +43,7 @@ class Manifest():
         self.client = self._make_openai_client()
 
     def _make_openai_client(self):
+        """Make the OpenAI client with auth."""
         if self.config['backend'] == "OpenAI":
             api_key = self.config['api_key'] or os.getenv("OPENAI_API_KEY")
             return OpenAI(api_key=api_key)
@@ -49,6 +57,15 @@ class Manifest():
             # )
 
     def chat_completion(self, messages, response_format_type="json_object"):
+        """Convenience method to call the chat completion endpoint.
+        
+        Args:
+            messages (list): A list of messages to send to the chat API
+            response_format_type (str, optional): The response format. Defaults to "json_object".
+
+        Returns:
+            openai.ChatCompletion: The response from the chat API
+        """
         if self.config["backend"] == "OpenAI":
             return self.client.chat.completions.create(
                 model=self.config['openai_model_name'], 
@@ -59,6 +76,7 @@ class Manifest():
             raise NotImplementedError("Azure OpenAI not yet implemented")
 
     def _load_config(self):
+        """Convenience function to load the user config from the config file."""
         configdir = appdirs.user_data_dir("dbtai", "dbtai")
 
         if os.path.exists(os.path.join(configdir, "config.yaml")):
@@ -74,7 +92,14 @@ class Manifest():
 
 
     def get_model_from_name(self, model_name):
-        """Get the model from the manifest."""
+        """Get the model from the manifest.
+        
+        Args:
+            model_name (str): The name of the model.
+            
+        Returns:
+            dict: The model from the manifest.
+        """
         nodes_and_sources = self.get_nodes_and_sources()
         for id, model in nodes_and_sources.items():
             if model['name'] == model_name:
@@ -83,7 +108,14 @@ class Manifest():
 
 
     def get_upstream_models(self, model_name):
-        """Get the upstream models of a model."""
+        """Get the upstream models of a model.
+        
+        Args:
+            model_name (str): The name of the model.
+
+        Returns:
+            list[dict]: A list of upstream models (dictionaries).
+        """
         model = self.get_model_from_name(model_name)
         nodes_and_sources = self.get_nodes_and_sources()
 
@@ -94,7 +126,14 @@ class Manifest():
 
 
     def compile_upstream_description_markdown(self, model_name):
-        """Compile the upstream models into a markdown string."""
+        """Compile the documentation for upstream models into a markdown string.
+        
+        Args:
+            model_name (str): The name of the model to get upstream documentation for.
+
+        Returns:
+            str: A markdown string with the documentation for all upstream models.
+        """
         upstream_models = self.get_upstream_models(model_name)
 
         all_models = []
@@ -109,8 +148,15 @@ class Manifest():
         return '\n\n'.join(all_models)
 
 
-    def create_instructions(self, model_name):
-        """Create a markdown string with instructions for the model."""
+    def create_documentation_instructions(self, model_name):
+        """Create a markdown prompt with instructions for documenting the model.
+        
+        Args:
+            model_name (str): The name of the model to create instructions for.
+            
+        Returns:
+            str: A markdown string with instructions for the model.
+        """
         model_description = self.compile_upstream_description_markdown(model_name)
 
         raw_code = self.get_model_from_name(model_name)['raw_code']
@@ -154,7 +200,7 @@ class Manifest():
 
     def generate_docs(self, model_name):
         """Generate documentation for the model."""
-        updoc = self.create_instructions(model_name)
+        updoc = self.create_documentation_instructions(model_name)
         prompt = languages[self.config['language']]['system_prompt']
 
         response = self.chat_completion(
@@ -169,16 +215,40 @@ class Manifest():
         return docs_json
 
     def get_model_location(self, model_name):
+        """Get the file location of the model.
+        
+        Args:
+            model_name (str): The name of the model.
+            
+        Returns:
+            str: The file location of the model.
+        """
         model = self.get_model_from_name(model_name)
         return model['original_file_path']
 
     def get_doc_location(self, model_name):
+        """Get the file location of the documentation for the model.
+        By design, this is just a sidecar to the model file.
+
+        Args:
+            model_name (str): The name of the model.
+
+        Returns:
+            str: The file location of the documentation for the model.
+        """
         model = self.get_model_from_name(model_name)
         return model['original_file_path'].replace('.sql', '.yml')
     
     @staticmethod
     def format_docs(docs_json):
-        """Format the documentation into a markdown string."""
+        """Format the documentation into a markdown string.
+        
+        Args:
+            docs_json (dict): The documentation in JSON format.
+
+        Returns:
+            str: The documentation in markdown format, correctly ordered.
+        """
 
         ordered_data = CommentedMap()
         ordered_data['name'] = docs_json['name']
@@ -201,7 +271,16 @@ class Manifest():
 
 
     def generate_model(self, model_name, description, inputs=[]):
-        """Generate model"""
+        """Generate model from a description and inputs.
+        
+        Args:
+            model_name (str): The name of the model.
+            description (str): The description of the model.
+            inputs (list, optional): A list of upstream models. Defaults to [].
+
+        Returns:
+            dict: The generated model in JSON format with keys "code" and "explanation".
+        """
 
         if len(inputs) > 0:
             inputs = [self.compile_upstream_description_markdown(model_name) for model_name in inputs]
@@ -227,9 +306,16 @@ class Manifest():
         return docs_json
     
     def fix(self, model_name, description):
-        """Fix model"""
-        upstream_docs = self.compile_upstream_description_markdown(model_name)
+        """Make a change to a model, based on a description of the issue.
+        
+        Args:
+            model_name (str): The name of the model.
+            description (str): The description of the issue.
 
+        Returns:
+            dict: The fixed model in JSON format with keys "code" and "explanation".
+        """
+        upstream_docs = self.compile_upstream_description_markdown(model_name)
 
         model_code = self.get_model_from_name(model_name)['raw_code']
 
@@ -254,3 +340,48 @@ class Manifest():
         docs_json['diff'] = diff
 
         return docs_json
+    
+    def fluff(self, model_name, rewrite=True):
+        model_code = self.get_model_from_name(model_name)['raw_code']
+
+        linted_code = sqlfluff.fix(model_code)
+
+        prompt = FIX_CODE_PROMPT.format(
+            model_code=linted_code
+        )
+
+        if not rewrite:
+            return {"code": linted_code, "explanation": "SQLFluffed code, no rewrite"}
+
+        response = self.chat_completion(
+            messages=[
+                {"role": "system", "content":prompt}
+            ]
+        )
+
+        response_json = json.loads(response.choices[0].message.model_dump_json())
+        docs_json = json.loads(response_json['content'])
+
+        return docs_json
+    
+    def explain(self, model_name):
+        model_code = self.get_model_from_name(model_name)['raw_code']
+        upstream_docs = self.compile_upstream_description_markdown(model_name)
+        model_docs = self.compile_upstream_description_markdown(model_name)
+
+        prompt = languages[self.config['language']]['explain_prompt'].format(
+            raw_code=model_code,
+            upstream_models=upstream_docs,
+            model_name=model_name,
+            model_description=model_docs
+        )
+
+        response = self.chat_completion(
+            messages=[
+                {"role": "system", "content": languages[self.config['language']]['explain_system_prompt']},
+                {"role": "user", "content": prompt}
+            ],
+            response_format_type="text"
+        )
+
+        return response.choices[0].message.content
