@@ -2,6 +2,14 @@
 
 An AI CLI utility for common tasks with dbt. Commands are intended to run inside a dbt project, and parses the dbt manifest to provide relevant context for the LLM.
 
+Features include:
+- Generate documentation for an existing dbt model, based on the upstream models and the model code.
+- Generate Unit tests for a dbt model, given a description of what to test.
+- Explain a dbt model.
+- Interactively chat with a dbt model.
+- Run SQLFluff and optionally rewrite a model for clarity.
+- Change an existing model based on a description of desired changes.
+
 ## Get started
 
 The library currently only works with OpenAI as backend. We hope to expand this, but for now you need an OpenAI API key at hand.

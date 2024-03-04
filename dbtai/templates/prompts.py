@@ -527,3 +527,4 @@ In-model configurations should be specified like this for maximum readability:
 
 The output should be a JSON containing a key "code" with the dbt model code, and a key "explanation" with a string explaining the changes made.
 """
+
