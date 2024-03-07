@@ -11,6 +11,7 @@ from dbtai.templates.prompts import (
 import appdirs
 import yaml
 from openai import OpenAI
+from mistralai.client import MistralClient
 from ruamel.yaml import YAML
 from ruamel.yaml.comments import CommentedMap
 import io
@@ -40,21 +41,26 @@ class Manifest():
             self.manifest = json.load(file)
 
         self.config = self._load_config()
-        self.client = self._make_openai_client()
-
+        if self.config['backend'] == "Mistral":
+            self.client = self._make_mistral_client()
+        elif self.config['backend'] == "Azure OpenAI":
+            raise NotImplementedError("Azure OpenAI not yet implemented")
+        else:
+            self.client = self._make_openai_client()
     def _make_openai_client(self):
         """Make the OpenAI client with auth."""
+
         if self.config['backend'] == "OpenAI":
             api_key = self.config['api_key'] or os.getenv("OPENAI_API_KEY")
             return OpenAI(api_key=api_key)
         else:
             raise NotImplementedError("Azure OpenAI not yet implemented")
 
-            # return OpenAI(
-            #     endpoint=self.config['azure_endpoint'],
-            #     model=self.config['azure_openai_model'],
-            #     deployment=self.config['azure_openai_deployment']
-            # )
+    def _make_mistral_client(self):
+        """Make the Mistral client with auth."""
+        client = MistralClient(api_key=self.config['api_key'])
+        return client
+
 
     def chat_completion(self, messages, response_format_type="json_object"):
         """Convenience method to call the chat completion endpoint.
@@ -67,13 +73,24 @@ class Manifest():
             openai.ChatCompletion: The response from the chat API
         """
         if self.config["backend"] == "OpenAI":
+            if not self.config.get("openai_model_name"):
+                raise ValueError("OpenAI model name not set in config")
+
             return self.client.chat.completions.create(
-                model=self.config['openai_model_name'], 
+                model=self.config.get('openai_model_name', 'gpt-4-turbo-preview'), 
                 messages=messages,
                 response_format={"type": response_format_type}
             )
+        elif self.config["backend"] == "Mistral":
+
+            return self.client.chat(
+                model=self.config.get("mistral_model_name", "mistral-large-latest"),
+                messages=messages,
+                response_format={"type": response_format_type},
+            )
+
         else:
-            raise NotImplementedError("Azure OpenAI not yet implemented")
+            raise NotImplementedError("Your backend is set to Azure OpenAI not yet implemented")
 
     def _load_config(self):
         """Convenience function to load the user config from the config file."""

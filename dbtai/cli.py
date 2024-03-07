@@ -52,36 +52,42 @@ def setup():
                     ),
         inquirer.List('backend',
                         message ="LLM Backend",
-                        choices = ["OpenAI", "Azure OpenAI"],
+                        choices = ["OpenAI", "Azure OpenAI", "Mistral"],
                         default = "OpenAI"
                         ),
         inquirer.List("auth_type",
                     message = "Authentication Type",
                     choices = ["API Key", "Native Authentication (DefaultAzureCredential)"],
                     default = "API Key",
-                    ignore = lambda answers: answers['backend'] == "OpenAI"
+                    ignore = lambda answers: answers['backend'] in ["OpenAI", "Mistral"]
                     ),
         inquirer.Text('api_key',
-                    message='OpenAI API Key',
+                    message='API Key',
                     ignore = lambda answers: answers['auth_type'] == "Native Authentication (DefaultAzureCredential)"
                     ),
         inquirer.List("openai_model_name",
                     message = "Model Name",
                         choices = ["gpt-3.5-turbo", "gpt-4-turbo-preview"],
                     default = "gpt-4-turbo-preview",
-                    ignore = lambda answers: answers['backend'] == "Azure OpenAI"
+                    ignore = lambda answers: answers['backend'] != "OpenAI"
+                    ),
+        inquirer.List("mistral_model_name",
+                    message = "Model Name",
+                    choices = ["mistral-large-latest"],
+                    default = "mistral-large-latest",
+                    ignore = lambda answers: answers['backend'] != "Mistral"
                     ),
         inquirer.Text("azure_endpoint",
                     message = "Azure OpenAI Endpoint",
-                    ignore = lambda answers: answers['backend'] == "OpenAI"
+                    ignore = lambda answers: answers['backend'] != "Azure OpenAI"
                     ),
         inquirer.Text("azure_openai_model",
                     message = "Azure OpenAI Model",
-                    ignore = lambda answers: answers['backend'] == "OpenAI"
+                    ignore = lambda answers: answers['backend'] != "Azure OpenAI"
                     ),
         inquirer.Text("azure_openai_deployment",
                     message = "Azure OpenAI Deployment",
-                    ignore = lambda answers: answers['backend'] == "OpenAI"
+                    ignore = lambda answers: answers['backend'] != "Azure OpenAI"
                     ),
     ]
     answer = inquirer.prompt(question)
@@ -147,8 +153,6 @@ def gen(model_name, description, input):
 @click.option("--diff", "-d", is_flag=True, help="Show the diff between existing and suggested code", default=False)
 def fix(model_name, description, diff):
     manifest = Manifest()
-    click.echo(model_name)
-    click.echo(description)
 
     model = manifest.fix(model_name, description)
 
@@ -212,3 +216,13 @@ def hello():
      \/      \/               \/     
 """
     click.echo(greeting)
+
+
+@dbtai.command(help="Generate a dbt test")
+@click.argument("model", required=True)
+@click.argument("description", required=True)
+def test(model, description):
+    raise NotImplementedError("Not yet implemented")
+    manifest = Manifest()
+    test = manifest.generate_test(model, description)
+    click.echo(test)

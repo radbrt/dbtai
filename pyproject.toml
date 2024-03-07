@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "dbtai"
-version = "0.1.0"
+version = "0.2.0"
 description = "`dbtai` is a utility CLI command to generate dbt model documentation for a given model using OpenAI."
 authors = ["Henning Holgersen"]
 keywords = [
@@ -13,6 +13,7 @@ license = "Apache 2.0"
 [tool.poetry.dependencies]
 python = "<3.14,>=3.8.0"
 openai = ">1.1.0"
+mistralai = ">=0.1.3,<2"
 click = "^8.1.3"
 "ruamel.yaml" = "^0.18.6"
 inquirer = "^3.2.4"
