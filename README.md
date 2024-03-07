@@ -12,7 +12,7 @@ Features include:
 
 ## Get started
 
-The library currently only works with OpenAI as backend. We hope to expand this, but for now you need an OpenAI API key at hand.
+The library currently only works with either OpenAI or Mistral as backend. We hope to expand to Azure OpenAI, but for now you need an API key.
 
 ### Install
 Install the library with:
@@ -23,7 +23,7 @@ pip install git+https://github.com/radbrt/dbtai.git
 
 ### Configure
 
-By default, `dbtai` uses english prompt templates and looks for an OS env variable `OPENAI_API_KEY`. You can, however, choose another language and set your API key explicitly by running
+By default, `dbtai` uses english prompt templates, the OpenAI backend and looks for an OS env variable `OPENAI_API_KEY`. You can, however, choose another language and set your backend and API key explicitly by running
 
 ```bash
 dbtai setup
