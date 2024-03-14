@@ -20,6 +20,7 @@ inquirer = "^3.2.4"
 appdirs = "^1.4.4"
 pyyaml = "^6.0.1"
 sqlfluff = "^2.3.5"
+sqlglot = ">=0.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.0.1"
