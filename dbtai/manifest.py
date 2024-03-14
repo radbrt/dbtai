@@ -334,7 +334,7 @@ class Manifest():
         response = self.chat_completion(
             messages=[
                 {"role": "system", "content": GENERATE_MODEL_SYSTEM_PROMPT},
-                {"role": "system", "content":prompt}
+                {"role": "user", "content":prompt}
             ]
         )
 
@@ -365,7 +365,7 @@ class Manifest():
         response = self.chat_completion(
             messages=[
                 {"role": "system", "content": GENERATE_MODEL_SYSTEM_PROMPT},
-                {"role": "system", "content":prompt}
+                {"role": "user", "content":prompt}
             ]
         )
 

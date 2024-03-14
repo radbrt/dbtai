@@ -4,6 +4,7 @@ import appdirs
 import yaml
 import click
 import datetime
+from mistralai.client import MistralClient
 
 class ModelChatBot:
     def __init__(
@@ -18,7 +19,10 @@ class ModelChatBot:
             {"role": "system", "content": system_prompt}
         ]
 
-        self.client = openai.OpenAI(api_key=self.config["api_key"] or os.getenv("OPENAI_API_KEY"))
+        if self.config["backend"] == "Mistral":
+            self.client = MistralClient(api_key=self.config["api_key"])
+        else:
+            self.client = openai.OpenAI(api_key=self.config["api_key"] or os.getenv("OPENAI_API_KEY"))
 
     def _load_config(self):
         """Convenience function to load the user config from the config file."""
@@ -43,6 +47,11 @@ class ModelChatBot:
         if self.config["backend"] == "OpenAI":
             return self.client.chat.completions.create(
                 model=self.config["openai_model_name"], 
+                messages=messages
+            )
+        if self.config["backend"] == "Mistral":
+            return self.client.chat.completions.create(
+                model=self.config["mistral_model_name"], 
                 messages=messages
             )
         else:
